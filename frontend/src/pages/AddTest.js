@@ -39,7 +39,7 @@ function AddTest() {
     const tests_to_send = [...selectedTests];
     if (otherTest.trim() !== "") tests_to_send.push(otherTest);
 
-    const res = await fetch("https://YOUR-BACKEND.onrender.com/add_test", {
+    const res = await fetch("https://blood-test-app.onrender.com/add_test", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
