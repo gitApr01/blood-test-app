@@ -5,7 +5,7 @@ function AllTests() {
   const [search, setSearch] = useState("");
 
   const fetchTests = async () => {
-    const res = await fetch("https://blood-test-app.onrender.com");
+    const res = await fetch("https://blood-test-app.onrender.com/all_tests");
     const data = await res.json();
     setTests(data);
   };
