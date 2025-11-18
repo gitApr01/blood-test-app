@@ -5,7 +5,7 @@ function AllTests() {
   const [search, setSearch] = useState("");
 
   const fetchTests = async () => {
-    const res = await fetch("http://localhost:5000/all_tests");
+    const res = await fetch("https://blood-test-app.onrender.com");
     const data = await res.json();
     setTests(data);
   };
@@ -15,7 +15,7 @@ function AllTests() {
   }, []);
 
   const updateStatus = async (id, status) => {
-    await fetch(`http://localhost:5000/update_status/${id}`, {
+    await fetch(`https://blood-test-app.onrender.com/update_status/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status })
