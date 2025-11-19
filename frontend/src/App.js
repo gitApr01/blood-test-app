@@ -7,20 +7,20 @@ import AllTests from "./pages/AllTests";
 import AddTest from "./pages/AddTest";
 import Reports from "./pages/Reports";
 import API from "./api";
+import "./styles.css";
 
 function AppInner() {
   const [user, setUser] = useState(null);
   const nav = useNavigate();
 
   useEffect(() => {
-    // restore from localStorage if present
-    const u = localStorage.getItem("username");
+    const username = localStorage.getItem("username");
     const id = localStorage.getItem("userid");
     const role = localStorage.getItem("role");
-    if (u) setUser({ username: u, id, role });
+    if (username) setUser({ username, id, role });
   }, []);
 
-  const handleLogin = (u) => {
+  const onLogin = (u) => {
     setUser(u);
     localStorage.setItem("username", u.username);
     localStorage.setItem("userid", u.id);
@@ -28,7 +28,7 @@ function AppInner() {
     nav("/tests");
   };
 
-  const handleLogout = async () => {
+  const onLogout = async () => {
     await API.logout();
     localStorage.clear();
     setUser(null);
@@ -37,18 +37,17 @@ function AppInner() {
 
   return (
     <div>
-      <Navbar username={user?.username} onLogout={handleLogout} />
+      <Navbar username={user?.username} onLogout={onLogout} />
       <main className="main-container">
         <Routes>
-          <Route path="/" element={<Login onLogin={handleLogin} />} />
+          <Route path="/" element={<Login onLogin={onLogin} />} />
           <Route path="/tests" element={<AllTests user={user} />} />
           <Route path="/add" element={<AddTest user={user} />} />
           <Route path="/reports" element={<Reports user={user} />} />
         </Routes>
       </main>
 
-      {/* Floating action button */}
-      <div className="fab" title="Add test" onClick={() => { window.location = "/add"; }}>
+      <div className="fab" title="Add new test" onClick={() => (window.location = "/add")}>
         <div className="fab-plus">+</div>
       </div>
     </div>
@@ -61,4 +60,4 @@ export default function App() {
       <AppInner />
     </BrowserRouter>
   );
-}
+    }
