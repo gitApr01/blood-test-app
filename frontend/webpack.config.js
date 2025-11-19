@@ -1,33 +1,47 @@
 const path = require("path");
 
 module.exports = {
+  context: path.resolve(__dirname),
   entry: "./src/index.js",
+
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
-    publicPath: "/",
+    publicPath: "/"
   },
-  mode: "production",
+
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: [
+          "style-loader",
+          "css-loader"
+        ]
+      },
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
           loader: "babel-loader",
-          options: { presets: ["@babel/preset-env", "@babel/preset-react"] },
-        },
-      },
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"]
-      },
-    ],
+          options: {
+            presets: [
+              "@babel/preset-env",
+              "@babel/preset-react"
+            ]
+          }
+        }
+      }
+    ]
   },
+
   resolve: {
-    extensions: [".js", ".jsx"],
+    extensions: [".js", ".jsx"]
   },
+
   devServer: {
-    historyApiFallback: true,
+    historyApiFallback: true
   },
+
+  mode: "production"
 };
