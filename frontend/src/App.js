@@ -1,63 +1,101 @@
-// frontend/src/App.js
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Login from "./pages/Login";
-import AllTests from "./pages/AllTests";
-import AddTest from "./pages/AddTest";
-import Reports from "./pages/Reports";
-import API from "./api";
-import "./styles.css";
+import api from "./api";
 
-function AppInner() {
-  const [user, setUser] = useState(null);
-  const nav = useNavigate();
+export default function App() {
+  const [tests, setTests] = useState([]);
+  const [patient, setPatient] = useState("");
+  const [testName, setTestName] = useState("");
+  const [value, setValue] = useState("");
+  const [date, setDate] = useState("");
 
   useEffect(() => {
-    const username = localStorage.getItem("username");
-    const id = localStorage.getItem("userid");
-    const role = localStorage.getItem("role");
-    if (username) setUser({ username, id, role });
+    loadTests();
   }, []);
 
-  const onLogin = (u) => {
-    setUser(u);
-    localStorage.setItem("username", u.username);
-    localStorage.setItem("userid", u.id);
-    localStorage.setItem("role", u.role);
-    nav("/tests");
-  };
+  async function loadTests() {
+    const res = await api.get("/tests");
+    setTests(res.data);
+  }
 
-  const onLogout = async () => {
-    await API.logout();
-    localStorage.clear();
-    setUser(null);
-    nav("/");
-  };
+  async function addTest() {
+    if (!patient || !testName || !value) {
+      alert("Fill all fields");
+      return;
+    }
+
+    await api.post("/tests", {
+      patient,
+      testName,
+      value,
+      date: date || new Date().toISOString().substring(0, 10)
+    });
+
+    setPatient("");
+    setTestName("");
+    setValue("");
+    setDate("");
+    loadTests();
+  }
 
   return (
     <div>
-      <Navbar username={user?.username} onLogout={onLogout} />
-      <main className="main-container">
-        <Routes>
-          <Route path="/" element={<Login onLogin={onLogin} />} />
-          <Route path="/tests" element={<AllTests user={user} />} />
-          <Route path="/add" element={<AddTest user={user} />} />
-          <Route path="/reports" element={<Reports user={user} />} />
-        </Routes>
-      </main>
+      <div className="top-bar">Blood Test Reports</div>
 
-      <div className="fab" title="Add new test" onClick={() => (window.location = "/add")}>
-        <div className="fab-plus">+</div>
+      <div className="container">
+
+        <h2>Add Test</h2>
+
+        <input
+          placeholder="Patient Name"
+          value={patient}
+          onChange={(e) => setPatient(e.target.value)}
+        />
+
+        <input
+          placeholder="Test Name"
+          value={testName}
+          onChange={(e) => setTestName(e.target.value)}
+        />
+
+        <input
+          placeholder="Value"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+        />
+
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+
+        <button onClick={addTest}>Add Test</button>
+
+        <h2>All Reports</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Test</th>
+              <th>Value</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {tests.map((t) => (
+              <tr key={t.id}>
+                <td>{t.patient}</td>
+                <td>{t.testName}</td>
+                <td>{t.value}</td>
+                <td>{t.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
       </div>
     </div>
   );
 }
-
-export default function App() {
-  return (
-    <BrowserRouter>
-      <AppInner />
-    </BrowserRouter>
-  );
-    }
