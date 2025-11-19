@@ -1,49 +1,36 @@
+// frontend/src/pages/Login.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api";
 
-function Login() {
-  const navigate = useNavigate();
-
+export default function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const nav = useNavigate();
 
-  const loginUser = async () => {
-    const res = await fetch("https://blood-test-app.onrender.com/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await res.json();
-
-    if (data.success) {
-      localStorage.setItem("username", data.username);
-      localStorage.setItem("role", data.role);
-      navigate("/tests");
+  const submit = async (e) => {
+    e?.preventDefault();
+    const res = await API.login(username, password);
+    if (res && res.success) {
+      const user = { username: res.username, id: res.id, role: res.role };
+      onLogin && onLogin(user);
+      nav("/tests");
     } else {
-      alert("Invalid username or password");
+      alert(res?.message || "Invalid username or password");
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="card login-card">
       <h2>Login</h2>
-
-      <input
-        type="text"
-        placeholder="Username"
-        onChange={(e) => setUsername(e.target.value)}
-      /><br /><br />
-
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      /><br /><br />
-
-      <button onClick={loginUser}>Login</button>
+      <form onSubmit={submit}>
+        <input className="input" placeholder="Username" value={username} onChange={e=>setUsername(e.target.value)} />
+        <input className="input" type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} />
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn primary" type="submit">Login</button>
+          <button className="btn" type="button" onClick={()=>{ setUsername("admin"); setPassword("admin123"); }}>Fill admin</button>
+        </div>
+      </form>
     </div>
   );
 }
-
-export default Login;
