@@ -1,128 +1,133 @@
-import React, { useState } from "react";
+// frontend/src/pages/AddTest.js
+import React, { useEffect, useState } from "react";
+import API from "../api";
 
-const TEST_LIST = [
-  "TC", "DC", "ESR", "Hb%",
-  "BSR", "BSF", "BSPP",
-  "LFT", "LIPID PROFILE", "UREA",
-  "CREATININE", "CALCIUM", "FSH",
-  "RA FACTOR", "CRP", "ASO"
-];
+export default function AddTest({ user }) {
+  const today = new Date().toISOString().slice(0,10);
+  const [patient, setPatient] = useState({ name: "", age: "", sex: "M" });
+  const [catalog, setCatalog] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [otherName, setOtherName] = useState("");
+  const [otherPrice, setOtherPrice] = useState("");
+  const [advance, setAdvance] = useState("");
+  const [paidTo, setPaidTo] = useState("");
+  const [testBy, setTestBy] = useState("");
+  const [date, setDate] = useState(today);
+  const [collectedBy, setCollectedBy] = useState(localStorage.getItem("userid") || "");
 
-function AddTest() {
-  const [patient, setPatient] = useState({
-    name: "",
-    age: "",
-    sex: "M",
-  });
+  useEffect(()=>{ fetchCatalog(); }, []);
 
-  const [selectedTests, setSelectedTests] = useState([]);
-  const [otherTest, setOtherTest] = useState("");
-
-  const [billing, setBilling] = useState({
-    total: 0,
-    advance: 0,
-    due: 0,
-    paid_to: "",
-    collected_by: "",
-    test_by: ""
-  });
-
-  const toggleTest = (test) => {
-    if (selectedTests.includes(test)) {
-      setSelectedTests(selectedTests.filter(t => t !== test));
-    } else {
-      setSelectedTests([...selectedTests, test]);
-    }
+  const fetchCatalog = async () => {
+    const res = await API.getCatalog();
+    if (Array.isArray(res)) setCatalog(res);
   };
 
-  const submitForm = async () => {
-    const tests_to_send = [...selectedTests];
-    if (otherTest.trim() !== "") tests_to_send.push(otherTest);
+  const toggle = (item) => {
+    const exists = selected.find(s => s.name === item.name);
+    if (exists) setSelected(selected.filter(s => s.name !== item.name));
+    else setSelected([...selected, item]);
+  };
 
-    const res = await fetch("https://blood-test-app.onrender.com/add_test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patient_name: patient.name,
-        age: patient.age,
-        sex: patient.sex,
-        tests: tests_to_send,
-        total: billing.total,
-        advance: billing.advance,
-        due: billing.due,
-        paid_to: billing.paid_to,
-        collected_by: billing.collected_by,
-        test_by: billing.test_by
-      })
-    });
+  const sumTotal = () => {
+    const s = selected.reduce((acc, it) => acc + (parseFloat(it.price) || 0), 0);
+    const other = parseFloat(otherPrice || 0);
+    return +(s + (isNaN(other) ? 0 : other)).toFixed(2);
+  };
 
-    const data = await res.json();
+  const submit = async () => {
+    if (!patient.name) return alert("Enter patient name");
+    const testsToSend = selected.map(t => ({ name: t.name, price: t.price }));
+    if (otherName) testsToSend.push({ name: otherName, price: parseFloat(otherPrice||0) || 0 });
 
-    if (data.success) {
-      alert("Test saved!");
+    const payload = {
+      patient_name: patient.name,
+      age: patient.age,
+      sex: patient.sex,
+      tests: testsToSend,
+      advance: parseFloat(advance || 0),
+      paid_to: paidTo,
+      collected_by: collectedBy ? parseInt(collectedBy) : null,
+      test_by: testBy,
+      created_by: collectedBy ? parseInt(collectedBy) : null,
+      date: date
+    };
+
+    const res = await API.addTest(payload);
+    if (res && res.success) {
+      alert("Test saved");
+      window.location = "/tests";
     } else {
-      alert("Error saving test!");
+      alert("Failed to save");
     }
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Add Test</h2>
+    <div className="card add-card">
+      <div className="add-header">
+        <h3>Add Patient Test</h3>
+      </div>
 
-      <h3>Patient Info</h3>
-      <input placeholder="Name" onChange={e => setPatient({ ...patient, name: e.target.value })} /><br /><br />
-      <input placeholder="Age" onChange={e => setPatient({ ...patient, age: e.target.value })} /><br /><br />
-      <select onChange={e => setPatient({ ...patient, sex: e.target.value })}>
-        <option value="M">Male</option>
-        <option value="F">Female</option>
-      </select>
-
-      <h3>Tests</h3>
-
-      {TEST_LIST.map(test => (
-        <div key={test}>
-          <input
-            type="checkbox"
-            checked={selectedTests.includes(test)}
-            onChange={() => toggleTest(test)}
-          />
-          {test}
+      <div className="form-grid">
+        <div>
+          <label>Patient Name</label>
+          <input className="input" value={patient.name} onChange={e=>setPatient({...patient, name:e.target.value})} />
         </div>
-      ))}
+        <div>
+          <label>Age</label>
+          <input className="input" value={patient.age} onChange={e=>setPatient({...patient, age:e.target.value})} />
+        </div>
+        <div>
+          <label>Sex</label>
+          <select value={patient.sex} onChange={e=>setPatient({...patient, sex:e.target.value})} className="input">
+            <option value="M">M</option><option value="F">F</option>
+          </select>
+        </div>
+        <div>
+          <label>Date</label>
+          <input className="input" type="date" value={date} onChange={e=>setDate(e.target.value)} />
+        </div>
+      </div>
 
-      <br />
-      <input
-        placeholder="Other Test"
-        onChange={(e) => setOtherTest(e.target.value)}
-      />
+      <h4>Choose tests (tap to toggle)</h4>
+      <div className="catalog-grid">
+        {catalog.map(c => (
+          <div key={c.id} className={`catalog-item ${selected.find(s=>s.name===c.name)?'selected':''}`} onClick={()=>toggle(c)}>
+            <div className="catalog-name">{c.name}</div>
+            <div className="catalog-price">₹{c.price}</div>
+          </div>
+        ))}
+      </div>
 
-      <h3>Billing</h3>
-      <input
-        placeholder="Total"
-        type="number"
-        onChange={e => setBilling({ ...billing, total: e.target.value })}
-      /><br /><br />
+      <div className="other-row">
+        <input className="input" placeholder="Other test name" value={otherName} onChange={e=>setOtherName(e.target.value)} />
+        <input className="input" placeholder="Price" value={otherPrice} onChange={e=>setOtherPrice(e.target.value)} />
+      </div>
 
-      <input
-        placeholder="Advance"
-        type="number"
-        onChange={e => setBilling({ ...billing, advance: e.target.value })}
-      /><br /><br />
+      <h4>Billing</h4>
+      <div className="billing-row">
+        <div>Total: <strong>₹{sumTotal().toFixed(2)}</strong></div>
+        <div>Advance: <input className="input small" type="number" value={advance} onChange={e=>setAdvance(e.target.value)} /></div>
+      </div>
 
-      <input
-        placeholder="Due"
-        type="number"
-        value={billing.total - billing.advance}
-        readOnly
-      /><br /><br />
+      <div className="form-grid">
+        <div>
+          <label>Paid To</label>
+          <input className="input" value={paidTo} onChange={e=>setPaidTo(e.target.value)} />
+        </div>
+        <div>
+          <label>Test By (Lab)</label>
+          <input className="input" value={testBy} onChange={e=>setTestBy(e.target.value)} />
+        </div>
+        <div>
+          <label>Collected By (user id)</label>
+          <input className="input" value={collectedBy} onChange={e=>setCollectedBy(e.target.value)} />
+        </div>
+      </div>
 
-      <input placeholder="Paid To" onChange={e => setBilling({ ...billing, paid_to: e.target.value })} /><br /><br />
-      <input placeholder="Collected By" onChange={e => setBilling({ ...billing, collected_by: e.target.value })} /><br /><br />
-      <input placeholder="Test By" onChange={e => setBilling({ ...billing, test_by: e.target.value })} /><br /><br />
-
-      <button onClick={submitForm}>Save</button>
+      <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:12}}>
+        <button className="btn" onClick={()=>{ window.location = "/tests" }}>Cancel</button>
+        <button className="btn primary" onClick={submit}>Save</button>
+      </div>
     </div>
   );
 }
-
-export default AddTest;
