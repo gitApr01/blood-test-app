@@ -1,14 +1,22 @@
 from app import create_app, db
 from app.models import User
-import os
+from sqlalchemy import select
 
 app = create_app()
 
-# Create database tables if they do not exist
+# Ensure database and admin user exist
 with app.app_context():
-    if not os.path.exists("instance/database.db"):
-        db.create_all()
-        # Create default admin user
+
+    # Create tables if missing
+    db.create_all()
+
+    # Check if admin exists
+    existing = db.session.execute(
+        select(User).where(User.username == "admin")
+    ).first()
+
+    # Create admin if missing
+    if not existing:
         admin = User(username="admin", password="admin123", role="admin")
         db.session.add(admin)
         db.session.commit()
