@@ -15,7 +15,7 @@ def create_app():
         pass
 
     # Database configuration
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../instance/database.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///../instance/database-new.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Enable CORS for all routes
