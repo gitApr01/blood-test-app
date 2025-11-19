@@ -9,7 +9,7 @@ with app.app_context():
     # Create tables if missing
     db.create_all()
 
-    # Check for admin
+    # Check if admin exists
     existing = db.session.execute(
         select(User).where(User.username == "admin")
     ).first()
