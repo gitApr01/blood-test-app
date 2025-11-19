@@ -1,40 +1,33 @@
 const path = require("path");
-const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.js",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
-    publicPath: "/"
+    publicPath: "/",
   },
-  devServer: {
-    static: {
-      directory: path.join(__dirname, "public")
-    },
-    historyApiFallback: true,
-    port: 3000,
-    hot: true
-  },
+  mode: "production",
   module: {
     rules: [
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
-        }
-      }
-    ]
+          loader: "babel-loader",
+          options: { presets: ["@babel/preset-env", "@babel/preset-react"] },
+        },
+      },
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"]
+      },
+    ],
   },
   resolve: {
-    extensions: [".js", ".jsx"]
+    extensions: [".js", ".jsx"],
   },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
-        { from: "public", to: "" }
-      ]
-    })
-  ]
+  devServer: {
+    historyApiFallback: true,
+  },
 };
