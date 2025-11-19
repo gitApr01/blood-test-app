@@ -1,101 +1,59 @@
-import React, { useState, useEffect } from "react";
-import api from "./api";
+import React, { useState } from "react";
+import { BrowserRouter, Routes, Route, Link, useNavigate } from "react-router-dom";
 
-export default function App() {
-  const [tests, setTests] = useState([]);
-  const [patient, setPatient] = useState("");
-  const [testName, setTestName] = useState("");
-  const [value, setValue] = useState("");
-  const [date, setDate] = useState("");
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import AddTest from "./pages/AddTest";
+import Reports from "./pages/Reports";
 
-  useEffect(() => {
-    loadTests();
-  }, []);
-
-  async function loadTests() {
-    const res = await api.get("/tests");
-    setTests(res.data);
-  }
-
-  async function addTest() {
-    if (!patient || !testName || !value) {
-      alert("Fill all fields");
-      return;
-    }
-
-    await api.post("/tests", {
-      patient,
-      testName,
-      value,
-      date: date || new Date().toISOString().substring(0, 10)
-    });
-
-    setPatient("");
-    setTestName("");
-    setValue("");
-    setDate("");
-    loadTests();
-  }
-
+function TopBar({ user, setUser, onMenu }) {
+  const navigate = useNavigate();
   return (
-    <div>
-      <div className="top-bar">Blood Test Reports</div>
-
-      <div className="container">
-
-        <h2>Add Test</h2>
-
-        <input
-          placeholder="Patient Name"
-          value={patient}
-          onChange={(e) => setPatient(e.target.value)}
-        />
-
-        <input
-          placeholder="Test Name"
-          value={testName}
-          onChange={(e) => setTestName(e.target.value)}
-        />
-
-        <input
-          placeholder="Value"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
-
-        <button onClick={addTest}>Add Test</button>
-
-        <h2>All Reports</h2>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>Test</th>
-              <th>Value</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {tests.map((t) => (
-              <tr key={t.id}>
-                <td>{t.patient}</td>
-                <td>{t.testName}</td>
-                <td>{t.value}</td>
-                <td>{t.date}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
+    <div className="topbar">
+      <div className="brand">Blood Test App</div>
+      <div style={{display:"flex",gap:8,alignItems:"center"}}>
+        {user ? (
+          <>
+            <div className="muted">Hi, {user.username}</div>
+            <div className="menu">
+              <button className="btn-ghost" onClick={onMenu}>☰</button>
+            </div>
+          </>
+        ) : (
+          <button className="btn-primary" onClick={() => navigate("/login")}>Login</button>
+        )}
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  // user stored simply in state; for a persistent app use localStorage with tokens
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("bt_user"));
+    } catch { return null; }
+  });
+
+  const handleSetUser = (u) => {
+    setUser(u);
+    if (u) localStorage.setItem("bt_user", JSON.stringify(u));
+    else localStorage.removeItem("bt_user");
+  };
+
+  return (
+    <BrowserRouter>
+      <TopBar user={user} setUser={handleSetUser} />
+      <div className="container">
+        <Routes>
+          <Route path="/login" element={<Login onLogin={handleSetUser} />} />
+          <Route path="/add" element={<AddTest user={user} />} />
+          <Route path="/reports" element={<Reports user={user} />} />
+          <Route path="/" element={<Dashboard user={user} />} />
+        </Routes>
+      </div>
+
+      <a className="fab" href="/add">+</a>
+    </BrowserRouter>
   );
 }
