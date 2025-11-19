@@ -1,4 +1,5 @@
 const path = require("path");
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.js",
@@ -7,22 +8,22 @@ module.exports = {
     path: path.resolve(__dirname, "dist"),
     publicPath: "/",
   },
-
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
-        use: "babel-loader",
+        use: "babel-loader"
       }
-    ],
+    ]
   },
-
-  resolve: {
-    extensions: [".js", ".jsx"],
-  },
-
-  devServer: {
-    historyApiFallback: true,
-  },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: "public/index.html", to: "index.html" }
+      ]
+    })
+  ],
+  resolve: { extensions: [".js", ".jsx"] },
+  mode: "production"
 };
