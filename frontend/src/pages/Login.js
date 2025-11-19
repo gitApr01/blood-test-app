@@ -24,11 +24,17 @@ export default function Login({ onLogin }) {
     <div className="card login-card">
       <h2>Login</h2>
       <form onSubmit={submit}>
-        <input className="input" placeholder="Username" value={username} onChange={e=>setUsername(e.target.value)} />
-        <input className="input" type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} />
-        <div style={{display:'flex',gap:8}}>
+        <input className="input" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <input className="input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <div style={{ display: "flex", gap: 8 }}>
           <button className="btn primary" type="submit">Login</button>
-          <button className="btn" type="button" onClick={()=>{ setUsername("admin"); setPassword("admin123"); }}>Fill admin</button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => { setUsername("admin"); setPassword("admin123"); }}
+          >
+            Fill admin
+          </button>
         </div>
       </form>
     </div>
