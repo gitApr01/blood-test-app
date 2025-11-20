@@ -6,7 +6,7 @@ export default function Reports(){
   useEffect(()=>{ load(); },[month]);
   async function load(){
     try{
-      const r = await fetch("https://blood-test-api.onrender.com/all_tests");
+      const r = await fetch("https://blood-test-app.onrender.com/all_tests");
       const all = await r.json();
       const filtered = all.filter(x => (x.created_at||x.date||"").slice(0,7) === month);
       const map = {}; filtered.forEach(e=>{ const c=e.collected_by||'Unknown'; if(!map[c]) map[c]={collectedBy:c,total:0,adminShare:0,entries:[]}; map[c].total += Number(e.total||0); map[c].adminShare += Number(((e.total||0) * 0.4).toFixed(2)); map[c].entries.push(e); });
