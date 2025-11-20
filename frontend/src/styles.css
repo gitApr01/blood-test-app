@@ -1,0 +1,21 @@
+:root{--primary:#0f62fe;--muted:#64748b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:#f6f8fb;color:#0f172a}
+.head{background:var(--primary);color:white;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:20}
+.container{max-width:980px;margin:14px auto;padding:12px}
+.card{background:white;padding:12px;border-radius:10px;box-shadow:0 8px 20px rgba(15,23,42,0.06);margin-bottom:12px}
+.row{display:flex;gap:8px;align-items:center}
+.col{flex:1}
+.input, input, select, textarea{width:100%;padding:10px;border:1px solid #e6eef8;border-radius:8px;font-size:14px}
+button{padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-ghost{background:transparent;border:1px solid #e6eef8}
+.fab{position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--primary);color:white;font-size:26px;box-shadow:0 16px 40px rgba(15,98,254,0.18)}
+.list-item{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed #eef2f7}
+.muted{color:var(--muted);font-size:13px}
+.small{font-size:13px;color:#334155}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.chip{padding:6px 10px;border-radius:999px;background:#f1f5f9;cursor:pointer}
+.bottomNav{position:fixed;left:0;right:0;bottom:0;background:white;display:flex;justify-content:space-around;padding:8px;border-top:1px solid #eef2f7}
+.label{display:block;margin:6px 0 4px;font-weight:600}
+@media(min-width:720px){.container{padding:20px}}
