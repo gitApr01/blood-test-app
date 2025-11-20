@@ -1,4 +1,4 @@
-export const API = "https://blood-test-api.onrender.com";
+export const API = "https://blood-test-app.onrender.com";
 
 export async function apiGet(path){
   const res = await fetch(API + path);
