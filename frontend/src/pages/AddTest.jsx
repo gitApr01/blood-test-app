@@ -64,10 +64,10 @@ export default function AddTest(){
     const payload = { patient_name, age, sex, tests: selected, total, advance, due, paid_to, collected_by, test_by, date };
     try{
       if(editId){
-        await fetch(`https://blood-test-api.onrender.com/edit_test/${editId}`, {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+        await fetch(`https://blood-test-app.onrender.com/edit_test/${editId}`, {method:"PUT", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
         alert("Updated");
       } else {
-        await fetch("https://blood-test-api.onrender.com/add_test", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+        await fetch("https://blood-test-app.onrender.com/add_test", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
         alert("Created");
       }
       nav("/dashboard");
