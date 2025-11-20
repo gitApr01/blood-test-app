@@ -1,41 +1,35 @@
-import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Login from './pages/Login'
-import Dashboard from './pages/Dashboard'
-import AllTests from './pages/AllTests'
-import AddTest from './pages/AddTest'
-import EditTest from './pages/EditTest'
-import Patients from './pages/Patients'
-import Reports from './pages/Reports'
-import Users from './pages/Users'
-import NotFound from './pages/NotFound'
-import { getUser } from './auth'
-import Header from './components/Header'
-import BottomNav from './components/BottomNav'
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-function Protected({ children }) {
-  const user = getUser()
-  if(!user) return <Navigate to="/login" replace />
-  return children
-}
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import AddTest from "./pages/AddTest";
+import AllTests from "./pages/AllTests";
+import Reports from "./pages/Reports";
+import Patients from "./pages/Patients";
+import Users from "./pages/Users";
+import NotFound from "./pages/NotFound";
 
-export default function App(){
+import BottomNav from "./components/BottomNav";
+import Header from "./components/Header";
+
+export default function App() {
   return (
-    <div>
+    <BrowserRouter>
       <Header />
-      <Routes>
-        <Route path="/login" element={<Login/>} />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<Protected><Dashboard/></Protected>} />
-        <Route path="/tests" element={<Protected><AllTests/></Protected>} />
-        <Route path="/tests/add" element={<Protected><AddTest/></Protected>} />
-        <Route path="/tests/edit/:id" element={<Protected><EditTest/></Protected>} />
-        <Route path="/patients" element={<Protected><Patients/></Protected>} />
-        <Route path="/reports" element={<Protected><Reports/></Protected>} />
-        <Route path="/users" element={<Protected><Users/></Protected>} />
-        <Route path="*" element={<NotFound/>} />
-      </Routes>
+      <div className="content">
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/add-test" element={<AddTest />} />
+          <Route path="/tests" element={<AllTests />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
       <BottomNav />
-    </div>
-  )
+    </BrowserRouter>
+  );
 }
