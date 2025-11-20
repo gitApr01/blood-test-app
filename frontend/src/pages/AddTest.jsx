@@ -1,87 +1,95 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUser } from "../auth";
 
 export default function AddTest() {
-  const navigate = useNavigate();
-  const user = getUser();
+  const nav = useNavigate();
 
-  const [patientName, setPatientName] = useState("");
+  const [catalog, setCatalog] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [patient_name, setName] = useState("");
   const [age, setAge] = useState("");
   const [sex, setSex] = useState("Male");
-  const [testList, setTestList] = useState([]);
-  const [selectedTests, setSelectedTests] = useState([]);
   const [advance, setAdvance] = useState(0);
-  const [testBy, setTestBy] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [test_by, setTestBy] = useState("");
+  const [paid_to, setPaidTo] = useState("");
+  const [collected_by, setCollectedBy] = useState("");
+  const [date, setDate] = useState("");
 
   useEffect(() => {
-    async function load() {
-      const res = await fetch("https://blood-test-app.onrender.com/tests_catalog");
-      const data = await res.json();
-      setTestList(data);
-    }
-    load();
+    loadCatalog();
   }, []);
 
-  function toggleTest(test) {
-    if (selectedTests.some(t => t.id === test.id)) {
-      setSelectedTests(selectedTests.filter(t => t.id !== test.id));
-    } else {
-      setSelectedTests([...selectedTests, test]);
+  async function loadCatalog() {
+    try {
+      const res = await fetch("https://blood-test-app.onrender.com/tests_catalog");
+      const data = await res.json();
+      setCatalog(data);
+    } catch (e) {
+      console.error(e);
+      alert("Failed to load catalog");
     }
   }
 
-  const total = selectedTests.reduce((sum, t) => sum + Number(t.price), 0);
-  const due = total - Number(advance || 0);
-
-  async function saveTest() {
-    if (!patientName) return alert("Enter patient name");
-    if (selectedTests.length === 0) return alert("Select at least 1 test");
-
-    const payload = {
-      patient_name: patientName,
-      age,
-      sex,
-      tests: selectedTests.map(t => ({
-        id: t.id,
-        name: t.name,
-        price: t.price
-      })),
-      advance: Number(advance || 0),
-      paid_to: user.username,
-      collected_by: user.id,
-      created_by: user.id,
-      test_by: testBy,
-      date
-    };
-
-    const res = await fetch("https://blood-test-app.onrender.com/add_test", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    if (data.success) {
-      alert("Test Added Successfully");
-      navigate("/tests");
+  function toggleTest(t) {
+    const exists = tests.find(x => x.id === t.id);
+    if (exists) {
+      setTests(tests.filter(x => x.id !== t.id));
     } else {
-      alert("Error saving test");
+      setTests([...tests, t]);
     }
   }
+
+  async function save() {
+    if (!patient_name || !age || tests.length === 0) {
+      alert("Enter all required fields");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://blood-test-app.onrender.com/add_test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_name,
+          age,
+          sex,
+          tests,
+          advance,
+          test_by,
+          paid_to,
+          collected_by,
+          date
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("Added");
+        nav("/tests");
+      } else {
+        alert("Failed");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Network error");
+    }
+  }
+
+  const total = tests.reduce((s, t) => s + Number(t.price), 0);
+  const due = total - Number(advance);
 
   return (
     <div className="container">
-      <button className="btn-back" onClick={() => navigate(-1)}>← Back</button>
 
-      <h2>Add New Test</h2>
+      <button className="btn-back" onClick={() => nav(-1)}>⬅ Back</button>
+
+      <h2>Add Test</h2>
 
       <label>Patient Name</label>
-      <input value={patientName} onChange={e => setPatientName(e.target.value)} />
+      <input value={patient_name} onChange={e => setName(e.target.value)} />
 
       <label>Age</label>
-      <input type="number" value={age} onChange={e => setAge(e.target.value)} />
+      <input value={age} onChange={e => setAge(e.target.value)} type="number" />
 
       <label>Sex</label>
       <select value={sex} onChange={e => setSex(e.target.value)}>
@@ -93,31 +101,39 @@ export default function AddTest() {
       <input type="date" value={date} onChange={e => setDate(e.target.value)} />
 
       <h3>Select Tests</h3>
-      <div className="card" style={{ maxHeight: 200, overflowY: "auto" }}>
-        {testList.map(t => (
-          <div key={t.id} className="test-item">
-            <input
-              type="checkbox"
-              checked={selectedTests.some(s => s.id === t.id)}
-              onChange={() => toggleTest(t)}
-            />
+      <div className="card">
+        {catalog.map(t => (
+          <div key={t.id} className="list-item"
+            onClick={() => toggleTest(t)}
+            style={{
+              background: tests.find(x => x.id === t.id) ? "#d1f0ff" : "white"
+            }}>
             {t.name} — ₹{t.price}
           </div>
         ))}
       </div>
 
+      <h3>Payment Details</h3>
+
       <label>Advance</label>
       <input type="number" value={advance} onChange={e => setAdvance(e.target.value)} />
 
-      <label>Test By / Lab</label>
-      <input value={testBy} onChange={e => setTestBy(e.target.value)} />
+      <label>Collected By</label>
+      <input value={collected_by} onChange={e => setCollectedBy(e.target.value)} />
 
-      <div className="summary-box">
-        <p>Total: ₹{total}</p>
-        <p>Due: ₹{due}</p>
+      <label>Test By</label>
+      <input value={test_by} onChange={e => setTestBy(e.target.value)} />
+
+      <label>Paid To</label>
+      <input value={paid_to} onChange={e => setPaidTo(e.target.value)} />
+
+      <div className="summary">
+        <p>Total: <b>₹{total}</b></p>
+        <p>Due: <b>₹{due}</b></p>
       </div>
 
-      <button className="btn-primary" onClick={saveTest}>Save</button>
+      <button className="btn-primary" onClick={save}>Save</button>
+
     </div>
   );
 }
