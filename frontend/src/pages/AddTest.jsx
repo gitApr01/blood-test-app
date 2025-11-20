@@ -47,7 +47,7 @@ export default function AddTest(){
 
   async function loadEdit(){
     try{
-      const res = await fetch("https://blood-test-api.onrender.com/all_tests");
+      const res = await fetch("https://blood-test-app.onrender.com/all_tests");
       const data = await res.json();
       const r = data.find(x => String(x.id) === String(editId));
       if(!r){ alert("Not found"); return; }
