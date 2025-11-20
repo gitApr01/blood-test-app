@@ -222,6 +222,24 @@ def update_commission(id):
     if not row:
         return jsonify({"success": False}), 404
 
+
+# -------------------- CREATE ADMIN MANUALLY --------------------
+@main.route("/create_admin")
+def create_admin():
+    existing = User.query.filter_by(username="admin").first()
+    if existing:
+        return jsonify({"success": True, "message": "Admin already exists"})
+
+    new_user = User(
+        username="admin",
+        password=generate_password_hash("admin123"),
+        role="admin"
+    )
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Admin created successfully"})
+
     row.commission_paid = float(data.get("commission_paid", 0))
     db.session.commit()
     return jsonify({"success": True})
