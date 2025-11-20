@@ -1,11 +1,33 @@
-import React, {useEffect, useState} from 'react'
-export default function Users(){
-  const [users,setUsers]=useState([])
-  useEffect(()=>{ fetch('https://blood-test-app.onrender.com/users').then(r=>r.json()).then(setUsers).catch(()=>{}) },[])
+import React, { useEffect, useState } from "react";
+import { API } from "../api";
+
+export default function Users() {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function load() {
+    const data = await API("/users");
+    setUsers(data);
+  }
+
   return (
     <div className="container">
-      <div className="card"><h2>Users</h2></div>
-      {users.map(u=> <div className="card small" key={u.id}>{u.username} — {u.role}</div>)}
+      <button className="btn-back" onClick={() => history.back()}>
+        ← Back
+      </button>
+
+      <h2>Users</h2>
+
+      <div className="list">
+        {users.map(u => (
+          <div className="card list-item" key={u.id}>
+            {u.username} — {u.role}
+          </div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
