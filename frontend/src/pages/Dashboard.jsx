@@ -11,7 +11,7 @@ export default function Dashboard(){
   async function load(){
     setLoading(true);
     try{
-      const r = await fetch("https://blood-test-api.onrender.com/all_tests");
+      const r = await fetch("https://blood-test-app.onrender.com/all_tests");
       const j = await r.json();
       setReports(j);
     }catch(e){ console.error(e); alert("Load failed"); }
