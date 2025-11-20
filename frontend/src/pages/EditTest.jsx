@@ -1,1 +1,0 @@
-import React from 'react'; import AddTest from './AddTest'; export default function EditTest(){ return <AddTest/> }
