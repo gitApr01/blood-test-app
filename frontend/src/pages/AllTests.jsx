@@ -2,37 +2,46 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function AllTests() {
-  const [rows, setRows] = useState([]);
-  const navigate = useNavigate();
+  const nav = useNavigate();
+  const [list, setList] = useState([]);
+  const [q, setQ] = useState("");
+
+  useEffect(() => load(), []);
 
   async function load() {
-    const res = await fetch("https://blood-test-app.onrender.com/all_tests");
-    const data = await res.json();
-    setRows(data);
+    try {
+      const res = await fetch(`https://blood-test-app.onrender.com/all_tests?q=${q}`);
+      const data = await res.json();
+      setList(data);
+    } catch (e) {
+      console.error(e);
+      alert("Error loading");
+    }
   }
-
-  useEffect(() => { load(); }, []);
 
   return (
     <div className="container">
-      <button className="btn-back" onClick={() => navigate(-1)}>← Back</button>
+      <button className="btn-back" onClick={() => nav(-1)}>⬅ Back</button>
 
       <h2>All Tests</h2>
 
-      {rows.map(r => (
-        <div key={r.id} className="card" onClick={() => navigate(`/edit/${r.id}`)}>
-          <h3>{r.patient_name}</h3>
-          <p>{r.sex}, {r.age} yrs</p>
+      <input
+        placeholder="Search patient"
+        value={q}
+        onChange={e => setQ(e.target.value)}
+        onKeyUp={load}
+      />
 
-          <p><b>Tests:</b> {r.tests.map(t => t.name).join(", ")}</p>
-          <p><b>Total:</b> ₹{r.total} | <b>Due:</b> ₹{r.due}</p>
+      <div>
+        {list.map(r => (
+          <div key={r.id} className="card">
+            <h3>{r.patient_name}</h3>
+            <p>{r.tests.map(t => t.name).join(", ")}</p>
+            <p>Total: ₹{r.total}</p>
+          </div>
+        ))}
+      </div>
 
-          <p>Lab: {r.test_by}</p>
-          <p>Status: {r.delivery_status}</p>
-
-          <small>{r.created_at.slice(0, 10)}</small>
-        </div>
-      ))}
     </div>
   );
 }
