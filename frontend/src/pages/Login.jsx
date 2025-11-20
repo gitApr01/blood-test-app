@@ -7,7 +7,7 @@ export default function Login(){
   async function submit(){
     if(!username||!password){ alert("Enter both"); return; }
     try{
-      const res = await fetch("https://blood-test-api.onrender.com/login", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({username,password})});
+      const res = await fetch("https://blood-test-app.onrender.com/login", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({username,password})});
       const data = await res.json();
       if(data.success){ saveUser({username:data.username, role:data.role}); nav("/dashboard"); }
       else alert(data.message || "Invalid credentials");
