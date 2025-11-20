@@ -1,0 +1,1 @@
+export function getAuthUser(){try{const u=localStorage.getItem('bt_user');if(!u) return null;return JSON.parse(u);}catch(e){return null}} export function setAuthUser(user){localStorage.setItem('bt_user',JSON.stringify(user))} export function logout(){localStorage.removeItem('bt_user');window.location.href='/' }

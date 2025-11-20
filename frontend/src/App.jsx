@@ -1,0 +1,17 @@
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import Dashboard from './pages/Dashboard.jsx'
+import AllTests from './pages/AllTests.jsx'
+import AddTest from './pages/AddTest.jsx'
+import EditTest from './pages/EditTest.jsx'
+import Patients from './pages/Patients.jsx'
+import Reports from './pages/Reports.jsx'
+import Users from './pages/Users.jsx'
+import Login from './pages/Login.jsx'
+import NotFound from './pages/NotFound.jsx'
+import Header from './components/Header.jsx'
+import BottomNav from './components/BottomNav.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+import { getAuthUser } from './auth.js'
+
+export default function App(){ const user = getAuthUser(); return (<div className='app-root'><Header/><main className='page-wrap'><Routes><Route path='/' element={ user ? <Dashboard/> : <Login/> }/><Route path='/login' element={<Login/>}/><Route path='/dashboard' element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/><Route path='/tests' element={<ProtectedRoute><AllTests/></ProtectedRoute>}/><Route path='/tests/add' element={<ProtectedRoute><AddTest/></ProtectedRoute>}/><Route path='/tests/:id/edit' element={<ProtectedRoute><EditTest/></ProtectedRoute>}/><Route path='/patients' element={<ProtectedRoute><Patients/></ProtectedRoute>}/><Route path='/reports' element={<ProtectedRoute><Reports/></ProtectedRoute>}/><Route path='/users' element={<ProtectedRoute><Users/></ProtectedRoute>}/><Route path='*' element={<NotFound/>}/></Routes></main><BottomNav/></div>) }

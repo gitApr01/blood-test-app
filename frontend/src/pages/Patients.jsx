@@ -1,0 +1,3 @@
+import React, {useEffect, useState} from 'react'
+import { get } from '../api.js'
+export default function Patients(){ const [list,setList]=useState([]); useEffect(()=>{ async function l(){ try{ const data = await get('/all_tests'); const byName = {}; data.forEach(it=>{ if(!byName[it.patient_name]) byName[it.patient_name]=it }); setList(Object.values(byName)) }catch(e){console.error(e)} } l() },[]); return (<div><div className='card'><h2 className='h2'>Patients</h2><table className='table'><thead><tr><th>Patient</th><th>Last Test</th><th>Total</th></tr></thead><tbody>{list.map(p=>(<tr key={p.id}><td>{p.patient_name}</td><td className='small'>{(p.date||p.created_at||'').slice(0,10)}</td><td>₹{(p.total||0).toFixed(2)}</td></tr>))}</tbody></table></div></div>) }
