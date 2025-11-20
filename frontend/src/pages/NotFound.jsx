@@ -1,1 +1,0 @@
-export default function NotFound(){ return <div style={{padding:30}}>Page not found</div> }
