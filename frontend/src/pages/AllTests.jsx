@@ -1,47 +1,46 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { API } from "../api";
 
 export default function AllTests() {
-  const nav = useNavigate();
   const [list, setList] = useState([]);
-  const [q, setQ] = useState("");
+  const [query, setQuery] = useState("");
 
-  useEffect(() => load(), []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function load() {
-    try {
-      const res = await fetch(`https://blood-test-app.onrender.com/all_tests?q=${q}`);
-      const data = await res.json();
-      setList(data);
-    } catch (e) {
-      console.error(e);
-      alert("Error loading");
-    }
+    const data = await API("/all_tests");
+    setList(data);
   }
+
+  const filtered = list.filter(r =>
+    r.patient_name.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div className="container">
-      <button className="btn-back" onClick={() => nav(-1)}>⬅ Back</button>
+      <button className="btn-back" onClick={() => history.back()}>
+        ← Back
+      </button>
 
       <h2>All Tests</h2>
 
       <input
-        placeholder="Search patient"
-        value={q}
-        onChange={e => setQ(e.target.value)}
-        onKeyUp={load}
+        placeholder="Search by name"
+        value={query}
+        onChange={e => setQuery(e.target.value)}
       />
 
-      <div>
-        {list.map(r => (
-          <div key={r.id} className="card">
-            <h3>{r.patient_name}</h3>
-            <p>{r.tests.map(t => t.name).join(", ")}</p>
-            <p>Total: ₹{r.total}</p>
+      <div className="list">
+        {filtered.map(r => (
+          <div key={r.id} className="card list-item">
+            <b>{r.patient_name}</b> ({r.age}/{r.sex})
+            <br />
+            <small>{r.tests.length} tests — ₹{r.total}</small>
           </div>
         ))}
       </div>
-
     </div>
   );
 }
