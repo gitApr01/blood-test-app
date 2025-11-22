@@ -1,0 +1,24 @@
+# Node deps
+node_modules/
+
+# Build output
+dist/
+
+# Env
+.env
+
+# Prisma sqlite DB
+prisma/dev.db
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+
+# Temp
+tmp/
